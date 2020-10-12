@@ -2,6 +2,7 @@ package com.jcabujat;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -28,6 +29,16 @@ public class Main {
             intBuffer.flip(); // always reset before writing except when calling a method that automatically resets the pointer
             numBytes = binChannel.write(intBuffer);
             System.out.println("Number of bytes written = " + numBytes);
+
+            RandomAccessFile raf = new RandomAccessFile("data.dat", "rwd");
+            byte[] bytes = new byte[outputBytes.length];
+            raf.read(bytes);
+            System.out.println(new String(bytes));
+
+            int int1 = raf.readInt();
+            int int2 = raf.readInt();
+            System.out.println(int1);
+            System.out.println(int2);
 
         } catch (IOException e) {
 	        e.printStackTrace();
