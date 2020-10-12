@@ -1,10 +1,12 @@
 package com.jcabujat;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 
 public class Main {
 
@@ -30,15 +32,57 @@ public class Main {
             numBytes = binChannel.write(intBuffer);
             System.out.println("Number of bytes written = " + numBytes);
 
-            RandomAccessFile raf = new RandomAccessFile("data.dat", "rwd");
-            byte[] bytes = new byte[outputBytes.length];
-            raf.read(bytes);
-            System.out.println(new String(bytes));
+            RandomAccessFile ra = new RandomAccessFile("data.dat", "rwd");
+            FileChannel channel = ra.getChannel();
+            // checking that outputBytes is tied with byteBuffer
+            outputBytes[0] = 'a';
+            outputBytes[1] = 'b';
+            byteBuffer.flip(); // this will reset the buffer's pointer and read the file from the start of the line
+            numBytes = channel.read(byteBuffer);
+            System.out.println("Number of bytes read = " + numBytes);
+            System.out.println(new String(outputBytes));
 
-            int int1 = raf.readInt();
-            int int2 = raf.readInt();
-            System.out.println(int1);
-            System.out.println(int2);
+            // Another way to extract byte array from the file
+            if (byteBuffer.hasArray()) {
+                System.out.println("byteBuffer = " + new String(byteBuffer.array()));
+            }
+
+            // Absolute read - passing index whenever we try to get the value from buffer so we don't need to flip the pointer
+            intBuffer.flip();
+            numBytes = channel.read(intBuffer);
+            System.out.println(intBuffer.getInt(0)); // passing the index where you want to start the read in the buffer
+
+            intBuffer.flip();
+            numBytes = channel.read(intBuffer);
+            System.out.println(intBuffer.getInt(0)); // passing the index where you want to start the read in the buffer
+
+
+//            // Relative read - you need to call flip between reading the buffer and getting the value from it
+//            // read the next int then print to console
+//            intBuffer.flip();
+//            numBytes = channel.read(intBuffer);
+//            intBuffer.flip();
+//            System.out.println(intBuffer.getInt());
+//
+//            // read the next int then print to console
+//            intBuffer.flip();
+//            numBytes = channel.read(intBuffer);
+//            intBuffer.flip();
+//            System.out.println(intBuffer.getInt());
+
+            channel.close();
+            ra.close();
+
+
+//            RandomAccessFile raf = new RandomAccessFile("data.dat", "rwd");
+//            byte[] bytes = new byte[outputBytes.length];
+//            raf.read(bytes);
+//            System.out.println(new String(bytes));
+//
+//            int int1 = raf.readInt();
+//            int int2 = raf.readInt();
+//            System.out.println(int1);
+//            System.out.println(int2);
 
         } catch (IOException e) {
 	        e.printStackTrace();
